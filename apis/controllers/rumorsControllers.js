@@ -95,10 +95,22 @@ const createNewRumor = (req, res) => {
   res.json(newRumor);
 }
 
+const deletRumorById = (req, res) => {
+  const id = req.params.id;
+  const rumor = rumors.find((rum) => rum.id === parseInt(id));
+  if (!rumor) {
+    return res.status(404).json({message: "rumor not found"});
+  }
+
+  rumors.filter((rum) => rum.id !==id);
+  res.json({message: "rumor is deleted successfuly"})
+}
+
 module.exports = {
     getAllRumours,
     getRumorsById,
     updateRumorById,
-    createNewRumor
+    createNewRumor,
+    deletRumorById
     
 };
