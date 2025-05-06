@@ -53,7 +53,52 @@ const getRumorsById = (req, res) => {
   res.json(rumor);
 };
 
+const updateRumorById = (req, res) => {
+  const id = req.params.id;
+  const rumorUpdate = req.body;
+
+  const rumor = rumors.find((rum) => rum.id == id);
+  if (!rumor) {
+    return res.status(404).json({message: "rumor no found"});
+  }
+
+  rumor.name = rumorUpdate.name ? rumorUpdate.name : rumor.name;
+  rumor.sign = rumorUpdate.sign;
+  rumor.description = rumorUpdate.description;
+  rumor.region = rumorUpdate.region;
+  rumor.zone = rumorUpdate.zone;
+  rumor.woreda = rumorUpdate.woreda;
+  rumor.kebele = rumorUpdate.kebele;
+  rumor.number_of_case = rumorUpdate.number_of_case;
+  rumor.number_of_death = rumorUpdate.number_of_death;
+  rumor.reporting_date = rumorUpdate.reporting_date
+
+  res.json({ message: "successfully updated", data: rumor });
+
+};
+
+const createNewRumor = (req, res) => {
+  const newRumor = {
+    id: rumors.length + 1,
+    name: req.body.name,
+    sign: req.body.sign,
+    description: req.body.description,
+    region: req.body.region,
+    zone: req.body.zone,
+    woreda: req.body.woreda,
+    kebele: req.body.kebele,
+    number_of_case: req.body.number_of_case,
+    number_of_death: req.body.number_of_death,
+    reporting_date: req.body.reporting_date
+  } 
+  rumors.push(newRumor);
+  res.json(newRumor);
+}
+
 module.exports = {
     getAllRumours,
     getRumorsById,
+    updateRumorById,
+    createNewRumor
+    
 };

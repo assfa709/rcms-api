@@ -6,7 +6,9 @@ rumorsController = require("../../apis/controllers/rumorsControllers");
 const rumorsRouter = express.Router();
 
 rumorsRouter.get("/", rumorsController.getAllRumours);
-rumorsRouter.get("/:id", rumorsController.getRumorsById);
+rumorsRouter.get("/:id", rumorsController.getRumorsById);   
+rumorsRouter.put("/:id", rumorsController.updateRumorById);
+rumorsRouter.post("/", rumorsController.createNewRumor);
 
 module.exports = rumorsRouter;
 
