@@ -2,11 +2,12 @@
 const express = require('express');
     // const { getAllRumours } = require("../constrollers/rumorsController");
 // const {getAllRumours} = require('../controllers/rumorsControllers')
-rummersController = require("../../apis/controllers/rumorsControllers");
-const rummersRouter = express.Router();
+rumorsController = require("../../apis/controllers/rumorsControllers");
+const rumorsRouter = express.Router();
 
-rummersRouter.get("/", rummersController.getAllRumours);
+rumorsRouter.get("/", rumorsController.getAllRumours);
+rumorsRouter.get("/:id", rumorsController.getRumorsById);
 
-module.exports = rummersRouter;
+module.exports = rumorsRouter;
 
 
