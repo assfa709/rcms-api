@@ -1,5 +1,6 @@
 const express = require("express");
-const rummersRouter = require("./apis/routs/rumorsRoute");
+const mongoose = require("mongoose");
+const rumorsRouter = require("./apis/routs/rumorsRoute");
 
 const app = express();
 
@@ -9,7 +10,12 @@ app.get("/", (req, res) => {
      
 });
 
-app.use("/rumors", rummersRouter)
+app.use("/rumors", rumorsRouter)
+
+mongoose
+  .connect("mongodb://localhost:27017/rumourDB")
+  .then(() => console.log("database connected successfully"))
+  .catch((err) => console.log(err));
 
 app.listen(8000, () => {
     console.log("The server is runing on port 8000")

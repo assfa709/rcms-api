@@ -1,111 +1,118 @@
-const rumors = [
-    {
-        id: 1,
-        name: "measels out break",
-        sign: " fever,rush, vomiting",
-        description: "50 people dead by measels out break around hawassa",
-        region: "Sidama",
-        zone: "hawassa",
-        woreda: "tabor",
-        kebele: "fara",
-        number_of_case: 100,
-        number_of_death: 50,
-        reporting_date: "10/02/2025",
-      },
-      {
-        id: 2,
-        name: "malaria out break",
-        sign: " fever, vomiting",
-        description: "10 people dead by measels out break around hawassa",
-        region: "Sidama",
-        zone: "hawassa",
-        woreda: "tabor",
-        kebele: "ogena wacho",
-        number_of_case: 20,
-        number_of_death: 10,
-        reporting_date: "10/03/2025",
-      },
-      {
-        id: 3,
-        name: "cholera out break",
-        sign: " fever, vomiting, diarrhea",
-        description: "15 people dead by measels out break around hawassa",
-        region: "Sidama",
-        zone: "hawassa",
-        woreda: "tabor",
-        kebele: "tilite",
-        number_of_case: 35,
-        number_of_death: 15,
-        reporting_date: "10/04/2025",
-      },
-    ];
+//Imports the Rumors model from the models directory. 
+// This model defines the schema/structure for rumors in the database.
+const Rumors = require("../models/Rumors");
+
+//Gets all rumors from the database
+const getAllRumours = async(req, res) => {
+    try {
+      const rms = await Rumors.find(); //Mongoose method to fetch all documents
+      res.json(rms);                   //Sends the rumors as JSON response
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("internal sever error"); 
+    }
+};
+
+//Gets a single rumor by ID
+const getRumorsById = async (req, res) => {
+  try {
+    const id = req?.params.id;     //Optional chaining to get ID from URL params
+    const rumor = await Rumors.findById(id); //Finds rumor by MongoDB ID
+    if (!rumor){
+      return res.status(404).json({message: "rumor not found"});
+    }
+    res.json(rumor);
     
-const getAllRumours = (req, res) => {
-    res.json(rumors);
-};
-
-const getRumorsById = (req, res) => {
-  const id = req.params.id;
-  const rumor = rumors.find((rum) => rum.id == id);
-  if (!rumor) {
-    return res.status(404).json({message: "rumor no found"});
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("internal sever error");    
   }
-  res.json(rumor);
+ 
 };
 
-const updateRumorById = (req, res) => {
-  const id = req.params.id;
-  const rumorUpdate = req.body;
+//Updates an existing rumor
+// Gets ID from params and update data from request body
+// Finds the rumor first, returns 404 if not found
+// Updates each field (some with conditional updates)
+// Saves the updated document
+// Returns success message and updated data
+const updateRumorById = async(req, res) => {
+  try {
+    const id = req.params.id;
+    const rummerUpdate = req.body;
+    
+    const rumour = await Rumors.findById(id);
+    console.log(id);
+    if (!rumour) {
+      return res.status(404).json({ message: "rummour not found" });
+    }
+    // Update fields if they exist in request, otherwise keep old values
+    rumour.name = rummerUpdate.name ? rummerUpdate.name : rumour.name;
+    rumour.sign = rummerUpdate.sign;
+    rumour.description = rummerUpdate.description;
+    rumour.region = rummerUpdate.region;
+    rumour.zone = rummerUpdate.zone;
+    rumour.kebele = rummerUpdate.kebele;
+    rumour.number_of_case = rummerUpdate.number_of_case;
+    rumour.number_of_death = rummerUpdate.number_of_death;
+    rumour.reporting_date = rummerUpdate.reporting_date;
+    await rumour.save();
+    res.json({ message: "successfully updated", data: rumour });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }};
 
-  const rumor = rumors.find((rum) => rum.id == id);
-  if (!rumor) {
-    return res.status(404).json({message: "rumor no found"});
+// Creates a new rumor
+// Builds rumor object from request body
+// Creates new Rumors document and saves it
+// Returns 201 (Created) status with new rumor
+// Good error handling with specific message
+const createNewRumor = async (req, res) => {
+  try {
+    const rum = {
+      name: req.body.name,
+      sign: req.body.sign,
+      description: req.body.description,
+      region: req.body.region,
+      zone: req.body.zone,
+      woreda: req.body.woreda,
+      kebele: req.body.kebele,
+      number_of_case: req.body.number_of_case,
+      number_of_death: req.body.number_of_death,
+      reporting_date: req.body.reporting_date
+    };
+    const newRumor = new Rumors(rum);
+    await newRumor.save();
+    res.status(201).json(newRumor); // 201 = Created
+  } catch (error) {
+    res.status(500).json({ message: "Error creating rumor", error: error.message });
   }
-
-  rumor.name = rumorUpdate.name ? rumorUpdate.name : rumor.name;
-  rumor.sign = rumorUpdate.sign;
-  rumor.description = rumorUpdate.description;
-  rumor.region = rumorUpdate.region;
-  rumor.zone = rumorUpdate.zone;
-  rumor.woreda = rumorUpdate.woreda;
-  rumor.kebele = rumorUpdate.kebele;
-  rumor.number_of_case = rumorUpdate.number_of_case;
-  rumor.number_of_death = rumorUpdate.number_of_death;
-  rumor.reporting_date = rumorUpdate.reporting_date
-
-  res.json({ message: "successfully updated", data: rumor });
-
 };
 
-const createNewRumor = (req, res) => {
-  const newRumor = {
-    id: rumors.length + 1,
-    name: req.body.name,
-    sign: req.body.sign,
-    description: req.body.description,
-    region: req.body.region,
-    zone: req.body.zone,
-    woreda: req.body.woreda,
-    kebele: req.body.kebele,
-    number_of_case: req.body.number_of_case,
-    number_of_death: req.body.number_of_death,
-    reporting_date: req.body.reporting_date
-  } 
-  rumors.push(newRumor);
-  res.json(newRumor);
+// Deletes a rumor by ID
+// Uses findByIdAndDelete for one-step find+delete
+// Returns 404 if not found
+// Returns success message on deletion
+// Handles server errors
+const deletRumorById = async(req, res) => {
+  try {
+    const id = req.params.id;
+    const rumor = await Rumors.findByIdAndDelete(id);
+    if (!rumor) {
+      return res.status(404).json({message: "rumor not found"});
+    }
+
+    res.json({message: "rumor is deleted successfuly"})
+    
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({message: "internal server error"});
+    
+  }
 }
 
-const deletRumorById = (req, res) => {
-  const id = req.params.id;
-  const rumor = rumors.find((rum) => rum.id === parseInt(id));
-  if (!rumor) {
-    return res.status(404).json({message: "rumor not found"});
-  }
-
-  rumors.filter((rum) => rum.id !==id);
-  res.json({message: "rumor is deleted successfuly"})
-}
-
+//Exports all controller functions for use in routes
 module.exports = {
     getAllRumours,
     getRumorsById,
